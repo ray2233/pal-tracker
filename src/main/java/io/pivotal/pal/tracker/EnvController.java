@@ -37,4 +37,6 @@ public class EnvController {
         return env;
     }
 
+    public static class TimeEntry {
+    }
 }
