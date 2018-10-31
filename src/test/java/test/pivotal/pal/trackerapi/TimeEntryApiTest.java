@@ -2,8 +2,8 @@ package test.pivotal.pal.trackerapi;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import io.pivotal.pal.tracker.PalTrackerApplication;
 import io.pivotal.pal.tracker.TimeEntry;
-import io.pivotal.pal.tracker.TimeTrackerApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TimeTrackerApplication.class, webEnvironment = RANDOM_PORT)
+@SpringBootTest(classes = PalTrackerApplication.class, webEnvironment = RANDOM_PORT)
 public class TimeEntryApiTest {
 
     @Autowired

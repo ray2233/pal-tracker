@@ -12,10 +12,10 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import javax.sql.DataSource;
 
 @SpringBootApplication
-public class TimeTrackerApplication {
+public class PalTrackerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(TimeTrackerApplication.class, args);
+        SpringApplication.run(PalTrackerApplication.class, args);
     }
 
     @Bean
