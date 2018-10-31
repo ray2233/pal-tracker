@@ -96,6 +96,7 @@ public class TimeEntryApiTest {
         assertThat(readJson.read("$.userId", Long.class)).isEqualTo(userId);
         assertThat(readJson.read("$.date", String.class)).isEqualTo("2017-01-08");
         assertThat(readJson.read("$.hours", Long.class)).isEqualTo(8);
+        
     }
 
     @Test
