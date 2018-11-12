@@ -1,44 +1,41 @@
 package io.pivotal.pal.tracker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class InMemoryTimeEntryRepository implements TimeEntryRepository {
+    private Map<Long, TimeEntry> dataStore = new HashMap();
+    private long idToAssign = 1;
 
-    private Map<Long,TimeEntry> mapTimeEntry = new HashMap<>();
-    private long timeEntryId = 1L;
-
-    @Override
     public TimeEntry create(TimeEntry timeEntry) {
-        TimeEntry createTimeEntry = new TimeEntry(timeEntryId++,timeEntry.getProjectId(), timeEntry.getUserId(), timeEntry.getDate(), timeEntry.getHours());
-        mapTimeEntry.put(createTimeEntry.getId(),createTimeEntry);
-        return createTimeEntry;
+        TimeEntry persisted = new TimeEntry(idToAssign++, timeEntry.getProjectId(), timeEntry.getUserId(), timeEntry.getDate(), timeEntry.getHours());
+        dataStore.put(persisted.getId(), persisted);
+        return find(persisted.getId());
     }
 
-    @Override
-    public TimeEntry find(long id)
-    {
-        return mapTimeEntry.get(id);
+    public TimeEntry find(long id) {
+        return dataStore.get(id);
     }
 
-    @Override
     public List<TimeEntry> list() {
-
-        List<TimeEntry> list = new ArrayList();
-
-        list.addAll(mapTimeEntry.values());
-
-        return list;
+        return new ArrayList<>(dataStore.values());
+//        List<TimeEntry> theList = new ArrayList();
+//        for (TimeEntry entry: dataStore.values()) {
+//            theList.add(entry);
+//        }
+//        return theList;
     }
 
-    @Override
     public TimeEntry update(long id, TimeEntry timeEntry) {
-        TimeEntry updatedTimeEntry = new TimeEntry(id,timeEntry.getProjectId(), timeEntry.getUserId(), timeEntry.getDate(), timeEntry.getHours());
-        mapTimeEntry.put(updatedTimeEntry.getId(),updatedTimeEntry);
-        return updatedTimeEntry;
+        TimeEntry persisted = new TimeEntry(id, timeEntry.getProjectId(), timeEntry.getUserId(), timeEntry.getDate(), timeEntry.getHours());
+        dataStore.put(persisted.getId(), persisted);
+        return find(persisted.getId());
     }
 
-    @Override
     public void delete(long id) {
-        mapTimeEntry.remove(id);
+        dataStore.remove(id);
     }
 }

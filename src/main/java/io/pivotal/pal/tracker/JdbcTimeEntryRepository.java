@@ -1,9 +1,11 @@
 package io.pivotal.pal.tracker;
 
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import javax.sql.DataSource;
 import java.sql.Date;
@@ -14,7 +16,7 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class JdbcTimeEntryRepository implements TimeEntryRepository {
 
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public JdbcTimeEntryRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -22,22 +24,24 @@ public class JdbcTimeEntryRepository implements TimeEntryRepository {
 
     @Override
     public TimeEntry create(TimeEntry timeEntry) {
-        GeneratedKeyHolder generatedKey = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement("INSERT INTO time_entries (id, project_id, user_id, date, hours) VALUES (?, ?, ?, ?,?)", RETURN_GENERATED_KEYS
+        KeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(
+                    "INSERT INTO time_entries (project_id, user_id, date, hours) " +
+                            "VALUES (?, ?, ?, ?)",
+                    RETURN_GENERATED_KEYS
             );
-            statement.setLong(1, timeEntry.getId());
-            statement.setLong(2, timeEntry.getProjectId());
-            statement.setLong(3, timeEntry.getUserId());
-//            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-            statement.setDate(4, Date.valueOf(timeEntry.getDate()));
-//            statement.setDate(4, Date.valueOf(timeEntry.getDate()));
-            statement.setInt(5, timeEntry.getHours());
+
+            statement.setLong(1, timeEntry.getProjectId());
+            statement.setLong(2, timeEntry.getUserId());
+            statement.setDate(3, Date.valueOf(timeEntry.getDate()));
+            statement.setInt(4, timeEntry.getHours());
 
             return statement;
-        }, generatedKey);
+        }, generatedKeyHolder);
 
-        return find(generatedKey.getKey().longValue());
+        return find(generatedKeyHolder.getKey().longValue());
     }
 
     @Override
@@ -50,8 +54,7 @@ public class JdbcTimeEntryRepository implements TimeEntryRepository {
 
     @Override
     public List<TimeEntry> list() {
-        return jdbcTemplate.query("SELECT id, project_id, user_id, date, hours FROM time_entries", mapper);
-    }
+        return jdbcTemplate.query("SELECT id, project_id, user_id, date, hours FROM time_entries", mapper);    }
 
     @Override
     public TimeEntry update(long id, TimeEntry timeEntry) {
@@ -64,12 +67,12 @@ public class JdbcTimeEntryRepository implements TimeEntryRepository {
                 timeEntry.getHours(),
                 id);
 
-        return find(id);
-    }
+        return find(id);    }
 
     @Override
     public void delete(long id) {
         jdbcTemplate.update("DELETE FROM time_entries WHERE id = ?", id);
+
     }
 
     private final RowMapper<TimeEntry> mapper = (rs, rowNum) -> new TimeEntry(
@@ -83,3 +86,4 @@ public class JdbcTimeEntryRepository implements TimeEntryRepository {
     private final ResultSetExtractor<TimeEntry> extractor =
             (rs) -> rs.next() ? mapper.mapRow(rs, 1) : null;
 }
+
